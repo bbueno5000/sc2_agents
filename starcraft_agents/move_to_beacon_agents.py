@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-A collection of agents for moving to a beacon.
+A collection of agents for moving to a beacon
 """
 
 from __future__ import absolute_import
@@ -26,6 +26,9 @@ from pysc2.lib import features
 
 
 class MoveToBeaconAgent(scripted_agent.MoveToBeacon):
+    """
+    Generic agent for moving to a beacon
+    """
 
     def __init__(self):
         super(MoveToBeaconAgent, self).__init__()
@@ -45,6 +48,9 @@ class MoveToBeaconAgent(scripted_agent.MoveToBeacon):
 
 
 class MoveToBeaconAgent001(MoveToBeaconAgent):
+    """
+    Basic agent for moving to a beacon
+    """
 
     def __init__(self):
         super(MoveToBeaconAgent001, self).__init__()
@@ -68,6 +74,9 @@ class MoveToBeaconAgent001(MoveToBeaconAgent):
 
 
 class MoveToBeaconAgent002(MoveToBeaconAgent):
+    """
+    DeepQ agent for moving to a beacon
+    """
 
     def __init__(self, act_x, act_y):
         super(MoveToBeaconAgent002, self).__init__()

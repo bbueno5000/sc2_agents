@@ -21,12 +21,43 @@ from __future__ import division
 from __future__ import print_function
 from numpy import array as np_array
 from numpy import linalg as np_linalg
-from pysc2.agents import base_agents
+from pysc2.agents import base_agent
 from pysc2.lib import actions
+from pysc2.lib import features
 from scipy import stats as sp_stats
 
 
-class CollectMineralsAgent001(base_agents.ScriptedAgent):
+class CollectMineralsAgent(base_agent.BaseAgent):
+
+    def __init__(self):
+        super(CollectMineralsAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
+        self.results = {}
+        self.results['agent_id'] = self.__class__.__name__
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
+
+    def reset(self):
+        super(CollectMineralsAgent, self).reset()
+        self.mean_reward = 0
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+
+
+class CollectMineralsAgent001(CollectMineralsAgent):
     """
     A scripted agent for collecting minerals
     using a print out to determine a valid
@@ -45,7 +76,7 @@ class CollectMineralsAgent001(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent002(base_agents.ScriptedAgent):
+class CollectMineralsAgent002(CollectMineralsAgent):
     """
     A scripted agent for collecting minerals
     using the mode of the mineral fields to
@@ -66,7 +97,7 @@ class CollectMineralsAgent002(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent003(base_agents.ScriptedAgent):
+class CollectMineralsAgent003(CollectMineralsAgent):
     """
     A simple agent for collecting minerals
     using the a basic search algorithm
@@ -91,7 +122,7 @@ class CollectMineralsAgent003(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent004(base_agents.ScriptedAgent):
+class CollectMineralsAgent004(CollectMineralsAgent):
     """
     A simple agent for collecting minerals
     using the mean of either of the two
@@ -127,7 +158,7 @@ class CollectMineralsAgent004(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent005(base_agents.ScriptedAgent):
+class CollectMineralsAgent005(CollectMineralsAgent):
 
     def __init__(self):
         super(CollectMineralsAgent005, self).__init__()
@@ -158,7 +189,7 @@ class CollectMineralsAgent005(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent006(base_agents.ScriptedAgent):
+class CollectMineralsAgent006(CollectMineralsAgent):
 
     def __init__(self):
         super(CollectMineralsAgent006, self).__init__()
@@ -179,7 +210,23 @@ class CollectMineralsAgent006(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAgent007(base_agents.DeepQAgent):
+class CollectMineralsAgent007(CollectMineralsAgent):
+
+    def __init__(self, act_x, act_y):
+        super(CollectMineralsAgent007, self).__init__()
+        self.act_x = act_x
+        self.act_y = act_y
+        self.mean_reward = 0
+        self.x_coord = 0
+        self.y_coord = 0
+        self.not_queued = [0]
+        self.player_neutral = 3
+        self.select_all = [0]
+        self.select_worker_all = [2]
+
+    def screen(self, obs):
+        player_relative = obs.observation.feature_screen.player_relative
+        return (player_relative == self.player_neutral).astype(int)
 
     def step(self, timestep):
         super(CollectMineralsAgent007, self).step(timestep)
@@ -205,14 +252,44 @@ class CollectMineralsAgent007(base_agents.DeepQAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAndGasAgent001(base_agents.ScriptedAgent):
+class CollectMineralsAndGasAgent(base_agent.BaseAgent):
 
     def __init__(self):
-        super(CollectMineralsAndGasAgent, self).__init__()
+        super(CollectMineralsAndGasAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
+        self.results = {}
+        self.results['agent_id'] = self.__class__.__name__
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
+
+    def reset(self):
+        super(CollectMineralsAndGasAgent, self).reset()
+        self.mean_reward = 0
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+
+
+class CollectMineralsAndGasAgent001(CollectMineralsAndGasAgent):
+
+    def __init__(self):
+        super(CollectMineralsAndGasAgent001, self).__init__()
         self.refinery_count = 0
 
     def step(self, timestep):
-        super(CollectMineralsAndGasAgent, self).step(timestep)
+        super(CollectMineralsAndGasAgent001, self).step(timestep)
         if timestep.observation['player'][self.idle_worker_count] > 0:    # harvest minerals
             if self.functions.Harvest_Gather_screen.id in timestep.observation['available_actions']:
                 unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
@@ -236,14 +313,14 @@ class CollectMineralsAndGasAgent001(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class CollectMineralsAndGasAgent002(base_agents.ScriptedAgent):
+class CollectMineralsAndGasAgent002(CollectMineralsAndGasAgent):
 
     def __init__(self):
-        super(CollectMineralsAndGasAgent, self).__init__()
+        super(CollectMineralsAndGasAgent002, self).__init__()
         self.refinery_count = 0
 
     def step(self, timestep):
-        super(CollectMineralsAndGasAgent, self).step(timestep)
+        super(CollectMineralsAndGasAgent002, self).step(timestep)
         if timestep.observation['player'][self.idle_worker_count] > 0:    # harvest minerals
             if self.functions.Harvest_Gather_screen.id in timestep.observation['available_actions']:
                 unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]

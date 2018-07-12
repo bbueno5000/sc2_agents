@@ -19,11 +19,42 @@ A collection of agents pertaining to building marines
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
 
-class BuildBarracksAgent(base_agents.ScriptedAgent):
+class ScriptedAgent(base_agent.BaseAgent):
+
+    def __init__(self):
+        super(ScriptedAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
+        self.results = {}
+        self.results['agent_id'] = self.__class__.__name__
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
+
+    def reset(self):
+        super(ScriptedAgent, self).reset()
+        self.mean_reward = 0
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+
+
+class BuildBarracksAgent(ScriptedAgent):
 
     def __init__(self):
         super(BuildBarracksAgent, self).__init__()
@@ -53,7 +84,7 @@ class BuildBarracksAgent(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildMarinesAgent(base_agents.ScriptedAgent):
+class BuildMarinesAgent(ScriptedAgent):
 
     def __init__(self):
         super(BuildMarinesAgent, self).__init__()
@@ -96,7 +127,7 @@ class BuildMarinesAgent(base_agents.ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildSupplyDepotAgent(base_agents.ScriptedAgent):
+class BuildSupplyDepotAgent(ScriptedAgent):
 
     def __init__(self):
         super(BuildSupplyDepotAgent, self).__init__()
