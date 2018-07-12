@@ -21,6 +21,7 @@ from __future__ import division
 from __future__ import print_function
 from baselines import logger
 from numpy import array as np_array
+from numpy import linalg as np_linalg
 from pysc2.agents import scripted_agent
 from pysc2.lib import actions
 from pysc2.lib import features
@@ -32,10 +33,23 @@ class CollectMineralShardsAgent(scripted_agent.CollectMineralShards):
     """
 
     def __init__(self):
-        super(CollectMineralShardsAgent, self).__init__()
+        super(CollectMineralShardsAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
         self.results = {}
         self.results['agent_id'] = self.__class__.__name__
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
 
     def reset(self):
         super(CollectMineralShardsAgent, self).reset()
@@ -55,8 +69,8 @@ class CollectMineralShardsAgent001(CollectMineralShardsAgent):
 
     def step(self, timestep):
         super(CollectMineralShardsAgent001, self).step(timestep)
-        if self.functions.Move_screen.id in timestep.observation['available_actions']:
-            player_relative = timestep.observation['screen'][self.screen_features.player_relative.index]
+        if self.functions.Move_screen.id in timestep.observation.available_actions:
+            player_relative = timestep.observation.feature_screen.player_relative
             neutral_y, neutral_x = (player_relative == self.player_neutral).nonzero()
             player_y, player_x = (player_relative == self.player_friendly).nonzero()
             player = [int(player_x.mean()), int(player_y.mean())]
@@ -90,7 +104,7 @@ class CollectMineralShardsAgent002(CollectMineralShardsAgent):
         self.select_all = [0]
         self.select_worker_all = [2]
 
-    def screen(self, obs):
+    def screen(self, timestep):
         player_relative = timestep.observation.feature_screen.player_relative
         return (player_relative == self.player_neutral).astype(int)
 
