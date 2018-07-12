@@ -1,4 +1,4 @@
-# Copyright 2017 Google Inc. All Rights Reserved.
+# Copyright 2018 Benjamin Bueno (bbueno5000) All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,46 +13,32 @@
 # limitations under the License.
 
 """
-
-A collection of random agents to use as a baseline.
-
+A collection of random agents
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-# from baselines import logger
-from numpy.random import choice as np_choice
-from numpy.random import randint as np_randint
-from pysc2.agents import base_agent
-from pysc2.lib import actions
+from baselines import logger
+from pysc2.agents import random_agent
 
 
-class RandomAgent001(base_agent.BaseAgent):
+class RandomAgent(random_agent.RandomAgent):
+    """
+    Generic random agent
+    """
 
-    def step(self, obs):
-        super(RandomAgent001, self).step(obs)
-        function_id = np_choice(obs.observation['available_actions'])
-        args = [[np_randint(0, size) for size in arg.sizes]
-                for arg in self.action_spec.functions[function_id].args]
-        return actions.FunctionCall(function_id, args)
+    def __init__(self):
+        super(RandomAgent, self).__init__()
+        self.results = {}
+        self.results['agent_id'] = "RandomAgent"
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
 
-
-# class RandomAgent002(RandomAgent001):
-#     """
-#     A random agent with graphing features.
-#     """
-#     def __init__(self):
-#         super(RandomAgent002, self).__init__()
-#         self.results = {}
-#         self.results['agent_id'] = "RandomAgent002"
-#         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
-
-#     def reset(self):
-#         super(RandomAgent002, self).reset()
-#         self.results['episode_data']['episode_lengths'].append(self.steps)
-#         self.results['episode_data']['episode_rewards'].append(self.reward)
-#         self.reward = 0
-#         self.steps = 0
-#         logger.record_tabular("episodes", self.episodes)
-#         logger.dump_tabular()
+    def reset(self):
+        super(RandomAgent, self).reset()
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+        logger.record_tabular("episodes", self.episodes)
+        logger.dump_tabular()
