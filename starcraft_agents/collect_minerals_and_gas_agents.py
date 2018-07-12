@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-A collection of agents for collecting minerals.
+A collection of agents for collecting minerals
 """
 
 from __future__ import absolute_import
@@ -28,12 +28,14 @@ from scipy import stats as sp_stats
 
 
 class CollectMineralsAgent(base_agent.BaseAgent):
+    """
+    Generic agent for collecting minerals
+    """
 
     def __init__(self):
-        super(CollectMineralsAgent, self).reset()
-        self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
+        super(CollectMineralsAgent, self).__init__()
         self.cmd_screen = [0]
+        self.functions = actions.FUNCTIONS
         self.idle_worker_count = 7
         self.neutral_mineralfields = 341
         self.not_queued = [0]
@@ -42,11 +44,11 @@ class CollectMineralsAgent(base_agent.BaseAgent):
         self.results = {}
         self.results['agent_id'] = self.__class__.__name__
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.screen_features = features.SCREEN_FEATURES
         self.select_all = [0]
         self.select_worker_all = [2]
         self.terran_commandcenter = 18
         self.terran_scv = 45
-        self.vespene_geyser = 342
 
     def reset(self):
         super(CollectMineralsAgent, self).reset()
