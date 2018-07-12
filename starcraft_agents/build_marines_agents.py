@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-A collection of agents pertaining to building marines
+A collection of agents related to building marines
 """
 
 from __future__ import absolute_import
@@ -24,10 +24,13 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 
-class ScriptedAgent(base_agent.BaseAgent):
+class BuildBarracksAgent(base_agent.BaseAgent):
+    """
+    Generic agent for building barracks
+    """
 
     def __init__(self):
-        super(ScriptedAgent, self).reset()
+        super(BuildBarracksAgent, self).reset()
         self.functions = actions.FUNCTIONS
         self.screen_features = features.SCREEN_FEATURES
         self.cmd_screen = [0]
@@ -46,7 +49,7 @@ class ScriptedAgent(base_agent.BaseAgent):
         self.vespene_geyser = 342
 
     def reset(self):
-        super(ScriptedAgent, self).reset()
+        super(BuildBarracksAgent, self).reset()
         self.mean_reward = 0
         self.results['episode_data']['episode_lengths'].append(self.steps)
         self.results['episode_data']['episode_rewards'].append(self.reward)
@@ -54,40 +57,79 @@ class ScriptedAgent(base_agent.BaseAgent):
         self.steps = 0
 
 
-class BuildBarracksAgent(ScriptedAgent):
+class BuildBarracksAgent001(BuildBarracksAgent):
+    """
+    Basic agent for building barracks
+    """
 
     def __init__(self):
-        super(BuildBarracksAgent, self).__init__()
+        super(BuildBarracksAgent001, self).__init__()
         self.barracks_count = 0
         self.supply_depot_count = 0
         self.terran_barrack_id = 21
 
     def step(self, timestep):
-        super(BuildBarracksAgent, self).step(timestep)
+        super(BuildBarracksAgent001, self).step(timestep)
         if self.supply_depot_count == 0:    # build supply depot
-            if self.functions.Build_SupplyDepot_screen.id in timestep.observation['available_actions']:
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
-                self.commandcenters_y, self.commandcenters_x = (unit_type == self.terran_commandcenter).nonzero()
-                target_point = [int(self.commandcenters_x.mean()), int(self.commandcenters_y.mean()) - 15]
+            if self.functions.Build_SupplyDepot_screen.id in timestep.observation.available_actions:
+                unit_type = timestep.observation.feature_screen.unit_type
+                self.cmdcenters_y, self.cmdcenters_x = (unit_type == self.terran_commandcenter).nonzero()
+                target_point = [int(self.cmdcenters_x.mean()), int(self.cmdcenters_y.mean()) - 15]
                 self.supply_depot_count += 1
                 return actions.FunctionCall(self.functions.Build_SupplyDepot_screen.id, [self.cmd_screen, target_point])
             else:     # select scv
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
+                unit_type = timestep.observation.feature_screen.unit_type
                 scvs_y, scvs_x = (unit_type == self.terran_scv).nonzero()
                 target_unit = [scvs_x[0], scvs_y[0]]
                 return actions.FunctionCall(self.functions.select_point.id, [self.cmd_screen, target_unit])
         if self.barracks_count == 0:    # build barracks
-            if self.functions.Build_Barracks_screen.id in timestep.observation['available_actions']:
-                target_point = [int(self.commandcenters_x.mean()) + 20, int(self.commandcenters_y.mean())]
+            if self.functions.Build_Barracks_screen.id in timestep.observation.available_actions:
+                target_point = [int(self.cmdcenters_x.mean()) + 20, int(self.cmdcenters_y.mean())]
                 self.barracks_count += 1
                 return actions.FunctionCall(self.functions.Build_Barracks_screen.id, [self.cmd_screen, target_point])
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildMarinesAgent(ScriptedAgent):
+class BuildMarinesAgent(base_agent.BaseAgent):
+    """
+    Generic agent for building marines
+    """
 
     def __init__(self):
-        super(BuildMarinesAgent, self).__init__()
+        super(BuildMarinesAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
+        self.results = {}
+        self.results['agent_id'] = self.__class__.__name__
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
+
+    def reset(self):
+        super(BuildMarinesAgent, self).reset()
+        self.mean_reward = 0
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+
+
+class BuildMarinesAgent001(BuildMarinesAgent):
+    """
+    Basic agent for building marines
+    """
+
+    def __init__(self):
+        super(BuildMarinesAgent001, self).__init__()
         self.barracks_count = 0
         self.queued = [1]
         self.supply_depot_count = 0
@@ -96,29 +138,29 @@ class BuildMarinesAgent(ScriptedAgent):
         self.terran_barrack_id = 21
 
     def step(self, timestep):
-        super(BuildMarinesAgent, self).step(timestep)
+        super(BuildMarinesAgent001, self).step(timestep)
         if self.supply_depot_count == 0:    # build supply depot
-            if self.functions.Build_SupplyDepot_screen.id in timestep.observation['available_actions']:
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
-                self.commandcenters_y, self.commandcenters_x = (unit_type == self.terran_commandcenter).nonzero()
-                target_point = [int(self.commandcenters_x.mean()), int(self.commandcenters_y.mean()) - 15]
+            if self.functions.Build_SupplyDepot_screen.id in timestep.observation.available_actions:
+                unit_type = timestep.observation.feature_screen.unit_type
+                self.cmdcenters_y, self.cmdcenters_x = (unit_type == self.terran_commandcenter).nonzero()
+                target_point = [int(self.cmdcenters_x.mean()), int(self.cmdcenters_y.mean()) - 15]
                 self.supply_depot_count += 1
                 return actions.FunctionCall(self.functions.Build_SupplyDepot_screen.id, [self.cmd_screen, target_point])
             else:     # select scv
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
+                unit_type = timestep.observation.feature_screen.unit_type
                 scvs_y, scvs_x = (unit_type == self.terran_scv).nonzero()
                 target_unit = [scvs_x[0], scvs_y[0]]
                 return actions.FunctionCall(self.functions.select_point.id, [self.cmd_screen, target_unit])
         if self.barracks_count == 0:    # build barracks
-            if self.functions.Build_Barracks_screen.id in timestep.observation['available_actions']:
-                target_point = [int(self.commandcenters_x.mean()) + 20, int(self.commandcenters_y.mean())]
+            if self.functions.Build_Barracks_screen.id in timestep.observation.available_actions:
+                target_point = [int(self.cmdcenters_x.mean()) + 20, int(self.cmdcenters_y.mean())]
                 self.barracks_count += 1
                 return actions.FunctionCall(self.functions.Build_Barracks_screen.id, [self.cmd_screen, target_point])
-        if self.functions.Train_Marine_quick.id in timestep.observation['available_actions']:    # train marines
+        if self.functions.Train_Marine_quick.id in timestep.observation.available_actions:    # train marines
             if timestep.observation['player'][self.supply_used_id] < timestep.observation['player'][self.supply_max_id]:
                 return actions.FunctionCall(self.functions.Train_Marine_quick.id, [self.queued])
         else:    # select barracks
-            unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
+            unit_type = timestep.observation.feature_screen.unit_type
             barracks_y, barracks_x = (unit_type == self.terran_barrack_id).nonzero()
             if not barracks_y.any():
                 return actions.FunctionCall(self.functions.no_op.id, [])
@@ -127,23 +169,59 @@ class BuildMarinesAgent(ScriptedAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildSupplyDepotAgent(ScriptedAgent):
+class BuildSupplyDepotAgent(base_agent.BaseAgent):
+    """
+    Generic agent for building supply depot
+    """
 
     def __init__(self):
-        super(BuildSupplyDepotAgent, self).__init__()
+        super(BuildSupplyDepotAgent, self).reset()
+        self.functions = actions.FUNCTIONS
+        self.screen_features = features.SCREEN_FEATURES
+        self.cmd_screen = [0]
+        self.idle_worker_count = 7
+        self.neutral_mineralfields = 341
+        self.not_queued = [0]
+        self.player_friendly = 1
+        self.player_neutral = 3    # beacon/minerals
+        self.results = {}
+        self.results['agent_id'] = self.__class__.__name__
+        self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
+        self.select_all = [0]
+        self.select_worker_all = [2]
+        self.terran_commandcenter = 18
+        self.terran_scv = 45
+        self.vespene_geyser = 342
+
+    def reset(self):
+        super(BuildSupplyDepotAgent, self).reset()
+        self.mean_reward = 0
+        self.results['episode_data']['episode_lengths'].append(self.steps)
+        self.results['episode_data']['episode_rewards'].append(self.reward)
+        self.reward = 0
+        self.steps = 0
+
+
+class BuildSupplyDepotAgent001(BuildBarracksAgent):
+    """
+    Basic agent for building supply depot
+    """
+
+    def __init__(self):
+        super(BuildSupplyDepotAgent001, self).__init__()
         self.supply_depot_count = 0
 
     def step(self, timestep):
-        super(BuildSupplyDepotAgent, self).step(timestep)
+        super(BuildSupplyDepotAgent001, self).step(timestep)
         if self.supply_depot_count == 0:    # build supply depot
-            if self.functions.Build_SupplyDepot_screen.id in timestep.observation['available_actions']:
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
-                commandcenters_y, commandcenters_x = (unit_type == self.terran_commandcenter).nonzero()
-                target_point = [int(commandcenters_x.mean()), int(commandcenters_y.mean()) - 15]
+            if self.functions.Build_SupplyDepot_screen.id in timestep.observation.available_actions:
+                unit_type = timestep.observation.feature_screen.unit_type
+                cmdcenters_y, cmdcenters_x = (unit_type == self.terran_commandcenter).nonzero()
+                target_point = [int(cmdcenters_x.mean()), int(cmdcenters_y.mean()) - 15]
                 self.supply_depot_count += 1
                 return actions.FunctionCall(self.functions.Build_SupplyDepot_screen.id, [self.cmd_screen, target_point])
             else:   # select scv
-                unit_type = timestep.observation['screen'][self.screen_features.unit_type.index]
+                unit_type = timestep.observation.feature_screen.unit_type
                 scvs_y, scvs_x = (unit_type == self.terran_scv).nonzero()
                 target_unit = [scvs_x[0], scvs_y[0]]
                 return actions.FunctionCall(self.functions.select_point.id, [self.cmd_screen, target_unit])
