@@ -1,0 +1,3 @@
+[console_scripts]
+dqn_agent = starcraft_agents.bin.dqn_agent:entry_point
+

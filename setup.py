@@ -25,7 +25,7 @@ from setuptools import setup
 
 setup(name='StarCraft Agents',
       version='0.1',
-      description='Starcraft II environment and library for training agents.',
+      description='Starcraft II agents',
       author='bbueno5000',
       author_email='bbueno5000@gmail.com',
       license='MIT License',

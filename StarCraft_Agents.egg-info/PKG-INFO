@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: StarCraft-Agents
+Version: 0.1
+Summary: Starcraft II environment and library for training agents.
+Home-page: https://github.com/bbueno5000/starcraft_agents
+Author: bbueno5000
+Author-email: bbueno5000@gmail.com
+License: MIT License
+Description: UNKNOWN
+Keywords: StarCraft AI
+Platform: UNKNOWN
