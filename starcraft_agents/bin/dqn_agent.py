@@ -42,8 +42,6 @@ from os import path
 from platform import system as platform_system
 from pysc2 import maps
 from pysc2 import run_configs
-import settings_interface
-from starcraft_agents.deepq import learn
 from pysc2.env import available_actions_printer
 from pysc2.env import run_loop
 from pysc2.env import sc2_env
@@ -51,6 +49,8 @@ from pysc2.lib import stopwatch
 from pysc2.lib import renderer_human
 from s2clientprotocol import sc2api_pb2 as sc_pb
 from six import BytesIO as six_BytesIO
+from starcraft_agents.bin import settings_interface
+from starcraft_agents.deepq import learn
 from sys import exit as sys_exit
 from threading import Thread
 from time import sleep
