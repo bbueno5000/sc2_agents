@@ -1,3 +1,25 @@
+# MIT License
+#
+# Copyright (c) 2018 Benjamin Bueno (bbueno5000)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 Deep Q learning graph.
 
@@ -48,29 +70,15 @@ The functions in this file are used to create the following:
     Where Q' is lagging behind Q to stablize the learning.
     For example, for Atari Q' is set to Q once every 10000 updates training steps.
 """
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from pysc2.deepq.utils import function as utils_function
-from pysc2.deepq.utils import huber_loss
-from pysc2.deepq.act_function import ConstructActFunc
-from pysc2.deepq.act_function import ConstructActFuncWithNoise
-from tensorflow import argmax as tf_argmax
-from tensorflow import clip_by_norm as tf_clip_by_norm
-from tensorflow import float32 as tf_float32
-from tensorflow import get_collection
-from tensorflow import get_variable_scope
-from tensorflow import GraphKeys
-from tensorflow import group as tf_group
-from tensorflow import int32 as tf_int32
-from tensorflow import one_hot as tf_one_hot
-from tensorflow import placeholder as tf_placeholder
-from tensorflow import reduce_max as tf_reduce_max
-from tensorflow import reduce_mean as tf_reduce_mean
-from tensorflow import reduce_sum as tf_reduce_sum
-from tensorflow import stop_gradient as tf_stop_gradient
-from tensorflow import Variable as tf_Variable
-from tensorflow import variable_scope as tf_variable_scope
+from starcraft_agents.deepq.utils import function as utils_function
+from starcraft_agents.deepq.utils import huber_loss
+from starcraft_agents.deepq.act_function import ConstructActFunc
+from starcraft_agents.deepq.act_function import ConstructActFuncWithNoise
+import tensorflow as tf
 
 
 class ConstructDeepQGraph:
@@ -84,7 +92,7 @@ class ConstructDeepQGraph:
     grad_norm_clipping: _float or None_
         clip gradient norms to this value.
         If None no clipping is performed.
-    q_func: _(tf_Variable, int, str, bool) -> tf_Variable_
+    q_func: _(tf.Variable, int, str, bool) -> tf.Variable_
         the model that takes the following inputs:
             observation_in: _object_
                 the output of observation placeholder
@@ -113,7 +121,7 @@ class ConstructDeepQGraph:
         To be able to reuse the scope must be given.
     scope: _str or VariableScope_
         optional scope for variable_scope.
-    act: _(tf_Variable, bool, float) -> tf_Variable_
+    act: _(tf.Variable, bool, float) -> tf.Variable_
         function to select and action given observation.
         See the top of the file for details.
     debug: _{str: function}_
@@ -127,13 +135,13 @@ class ConstructDeepQGraph:
         See the top of the file for details.
     """
     def __init__(self, num_actions):
-        self.act_t_ph = tf_placeholder(tf_int32, [None], "action")
-        self.done_mask_ph = tf_placeholder(tf_float32, [None], "done")
-        self.importance_weights_ph = tf_placeholder(tf_float32, [None], "weight")
+        self.act_t_ph = tf.placeholder(tf.int32, [None], "action")
+        self.done_mask_ph = tf.placeholder(tf.float32, [None], "done")
+        self.importance_weights_ph = tf.placeholder(tf.float32, [None], "weight")
         self.num_actions = num_actions
-        self.obs_t_input = tf_placeholder(tf_float32, [None] + list((64, 64)), name="obs_t")
-        self.obs_tp1_input = tf_placeholder(tf_float32, [None] + list((64, 64)), name="obs_tp1")
-        self.rew_t_ph = tf_placeholder(tf_float32, [None], "reward")
+        self.obs_t_input = tf.placeholder(tf.float32, [None] + list((64, 64)), name="obs_t")
+        self.obs_tp1_input = tf.placeholder(tf.float32, [None] + list((64, 64)), name="obs_tp1")
+        self.rew_t_ph = tf.placeholder(tf.float32, [None], "reward")
 
     def __call__(self,
                  double_q,
@@ -150,9 +158,9 @@ class ConstructDeepQGraph:
             act_func = ConstructActFuncWithNoise(self.num_actions)(q_func, reuse, scope)
         else:
             act_func = ConstructActFunc(self.num_actions)(q_func, reuse, scope)
-        with tf_variable_scope(scope, reuse=reuse):
+        with tf.variable_scope(scope, reuse=reuse):
             # TRAIN FUNCTION
-            q_func_vars = get_collection(GraphKeys.GLOBAL_VARIABLES, get_variable_scope().name + "/q_func")
+            q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, tf.get_variable_scope().name + "/q_func")
             # q scores for actions which we know were selected in the given state.
             q_t = q_func(self.obs_t_input, self.num_actions, scope="q_func", reuse=True)    # reuse parameters from act
             inputs = self._inputs()
@@ -162,11 +170,11 @@ class ConstructDeepQGraph:
             # UPDATE TARGET FUNCTION
             # update_target function will be called periodically to copy Q network to target Q network
             update_target_expr = []
-            target_q_func_vars = get_collection(GraphKeys.GLOBAL_VARIABLES, get_variable_scope().name + "/target_q_func")
+            target_q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, tf.get_variable_scope().name + "/target_q_func")
             for var, var_target in zip(sorted(q_func_vars, key=lambda v: v.name),
                                        sorted(target_q_func_vars, key=lambda v: v.name)):
                 update_target_expr.append(var_target.assign(var))
-            update_target_expr = tf_group(*update_target_expr)
+            update_target_expr = tf.group(*update_target_expr)
             update_target_func = utils_function([], [], [update_target_expr])
             # Q VALUES FUNCTION
             q_values_func = utils_function([self.obs_t_input], q_t)
@@ -182,31 +190,31 @@ class ConstructDeepQGraph:
 
     def _outputs(self, double_q, gamma, q_func, q_t):
         # q network evaluatios
-        q_t_selected = tf_reduce_sum(q_t * tf_one_hot(self.act_t_ph, self.num_actions), 1)
+        q_t_selected = tf.reduce_sum(q_t * tf.one_hot(self.act_t_ph, self.num_actions), 1)
         # compute estimate of best possible value starting from state at t + 1
         q_tp1 = q_func(self.obs_tp1_input, self.num_actions, scope="target_q_func")
         if double_q:
             q_tp1_using_online_net = q_func(self.obs_tp1_input, self.num_actions, scope="q_func", reuse=True)
-            q_tp1_best_using_online_net = tf_argmax(q_tp1_using_online_net, 1)
-            q_tp1_best = tf_reduce_sum(q_tp1 * tf_one_hot(q_tp1_best_using_online_net, self.num_actions), 1)
+            q_tp1_best_using_online_net = tf.argmax(q_tp1_using_online_net, 1)
+            q_tp1_best = tf.reduce_sum(q_tp1 * tf.one_hot(q_tp1_best_using_online_net, self.num_actions), 1)
         else:
-            q_tp1_best = tf_reduce_max(q_tp1, 1)
+            q_tp1_best = tf.reduce_max(q_tp1, 1)
         # target q network evalution
         q_tp1_best_masked = (1.0 - self.done_mask_ph) * q_tp1_best
         # compute RHS of bellman equation
         q_t_selected_target = self.rew_t_ph + gamma * q_tp1_best_masked
         # compute the td_error (potentially clipped)
-        return q_t_selected - tf_stop_gradient(q_t_selected_target)
+        return q_t_selected - tf.stop_gradient(q_t_selected_target)
 
     def _updates(self, grad_norm_clipping, optimizer, td_error, q_func_vars):
         # compute optimization operation (potentially with gradient clipping)
         errors = huber_loss(td_error)
-        weighted_error = tf_reduce_mean(self.importance_weights_ph * errors)
+        weighted_error = tf.reduce_mean(self.importance_weights_ph * errors)
         if grad_norm_clipping is not None:
             gradients = optimizer.compute_gradients(weighted_error, var_list=q_func_vars)
             for i, (grad, var) in enumerate(gradients):
                 if grad is not None:
-                    gradients[i] = (tf_clip_by_norm(grad, grad_norm_clipping), var)
+                    gradients[i] = (tf.clip_by_norm(grad, grad_norm_clipping), var)
             optimize_expr = optimizer.apply_gradients(gradients)
         else:
             optimize_expr = optimizer.minimize(weighted_error, var_list=q_func_vars)

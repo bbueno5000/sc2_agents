@@ -98,8 +98,8 @@ class MoveToBeaconAgent002(MoveToBeaconAgent):
         self.select_all = [0]
         self.select_worker_all = [2]
 
-    def screen(self, obs):
-        player_relative = obs.observation.feature_screen.player_relative
+    def screen(self, observation):
+        player_relative = observation.feature_screen.player_relative
         return (player_relative == self.player_neutral).astype(int)
 
     def step(self, timestep):

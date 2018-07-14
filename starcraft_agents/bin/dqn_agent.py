@@ -73,7 +73,7 @@ def get_game_version(replay_data):
 
 def train_agent(agent_name,
                 agent_race,
-                bot_race,
+                agent2_race,
                 cnn_to_mlp_args,
                 difficulty,
                 game_steps_per_episode,
@@ -101,7 +101,10 @@ def train_agent(agent_name,
     tensorboard_dir = path.join(file_dir, "tensorboard", map_name)
     makedirs(path.dirname(tensorboard_dir), exist_ok=True)
 
-    with sc2_env.SC2Env(agent_race=agent_race,
+    with sc2_env.SC2Env(agent_interface_format=sc2_env.AgentInterfaceFormat(
+                            feature_dimensions=sc2_env.Dimensions(
+                                screen=64, minimap=64),
+                                use_feature_units=True),
                         map_name=map_name,
                         step_mul=step_mul,
                         visualize=visualize) as env:
@@ -130,7 +133,6 @@ def train_agent(agent_name,
 
 
 def main(_):
-
     if FLAGS.settings_interface:
         settings = settings_interface.TrainAgent()
         settings.master.mainloop()
@@ -138,7 +140,7 @@ def main(_):
         cnn_to_mlp_args = [[(32, 8, 4), (64, 4, 2), (64, 3, 1)], [256], FLAGS.dueling]
         train_agent(FLAGS.agent_name,
                     FLAGS.agent_race,
-                    FLAGS.bot_race,
+                    FLAGS.agent2_race,
                     cnn_to_mlp_args,
                     FLAGS.difficulty,
                     FLAGS.game_steps_per_episode,
@@ -205,7 +207,7 @@ def play():
                                                                   map_data=map_inst.data(run_config)))
         create.player_setup.add(type=sc_pb.Participant)    # pylint: disable=E1101
         create.player_setup.add(type=sc_pb.Computer,    # pylint: disable=E1101
-                                race=sc2_env.Race[FLAGS.bot_race],
+                                race=sc2_env.Race[FLAGS.agent2_race],
                                 difficulty=sc2_env.Difficulty[FLAGS.difficulty])
         join = sc_pb.RequestJoinGame(race=sc2_env.Race[FLAGS.agent_race], options=interface)
         game_version = None
@@ -223,7 +225,7 @@ def play():
             controller.join_game(join)
         else:
             info = controller.replay_info(replay_data)
-            print(" Replay info ".center(60, "-"))
+            print("Replay info ".center(60, "-"))
             print(info)
             print("-" * 60)
             map_path = FLAGS.map_path or info.local_map_path
@@ -260,7 +262,6 @@ def play():
 
 
 if __name__ == "__main__":
-
     FLAGS = flags.FLAGS
     flags.DEFINE_bool("deepq_training", False, "Toggle DeepQ training.")
     flags.DEFINE_bool("disable_fog", False, "Toggle fog of war.")
@@ -296,7 +297,7 @@ if __name__ == "__main__":
     flags.DEFINE_string("replay_dir", None, "Directory to save replays.")
     FLAGS.deepq_training = True
     FLAGS.map_name = "MoveToBeacon"
-    FLAGS.agent_name = "starcraft_agents.minigames.move_to_beacon_agents.MoveToBeaconAgent002"
+    FLAGS.agent_name = "starcraft_agents.minigame_agents.move_to_beacon_agents.MoveToBeaconAgent002"
     FLAGS.save_replay = False
     FLAGS.label = "starcraft-duel-a"
     app.run(main)
