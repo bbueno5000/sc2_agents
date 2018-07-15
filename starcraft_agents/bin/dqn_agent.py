@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """
-Train DQN agent
+Train DQN agent.
 """
 
 from __future__ import absolute_import
@@ -29,7 +29,6 @@ from __future__ import division
 from __future__ import print_function
 from absl import app
 from absl import flags
-from baselines import logger
 from dill import dump as pkl_dump
 from dill import load as pkl_load
 from future.builtins import range as builtins_range
@@ -57,7 +56,8 @@ from time import sleep
 from time import time
 
 
-def entry_point():    # Needed for setup.py
+# Needed for setup.py
+def entry_point():
     app.run(main)
 
 

@@ -25,7 +25,8 @@ from __future__ import division
 from __future__ import print_function
 from absl import app
 from absl import flags
-import dqn_agent
+from dqn_agent import train_agent
+from pysc2.bin.agent import run_thread
 from tkinter import Button
 from tkinter import Entry
 from tkinter import Label
@@ -40,9 +41,10 @@ FLAGS = flags.FLAGS
 class _UserInterface:
 
     def __init__(self):
-        self.agent_names = ["pysc2.agents.deepq_agents.CollectMineralShardsAgent",
-                            "pysc2.agents.deepq_agents.CollectMineralsAgent",
-                            "pysc2.agents.deepq_agents.MoveToBeaconAgent"]
+        self.agent_names = [
+            "starcraft_agents.minigame_agents.collect_mineral_shards_agents.CollectMineralShardsAgent",
+            "starcraft_agents.minigame_agents.collect_minerals_agents.CollectMineralsAgent",
+            "starcraft_agents.minigame_agents.move_to_beacon_agents.MoveToBeaconAgent"]
         self.master = Tk()
         self.master.geometry('400x400')
         self.pady = 5
@@ -143,6 +145,7 @@ class RunAgent(_UserInterface):
     """
     GUI for selecting from the various options when running an agent.
     """
+
     def __init__(self):
         super(RunAgent, self).__init__()
         self.master.title("DeepQ Training")
@@ -157,7 +160,7 @@ class RunAgent(_UserInterface):
         FLAGS.save_replay = self.save_replay
         FLAGS.step_mul = self.step_mul
         FLAGS.visualize = self.visualize
-        # app.run(run_agent.run_thread)
+        app.run(run_thread)
 
     def _experiment_num(self):
         self.experiment_num = 1
@@ -176,6 +179,7 @@ class TrainAgent(_UserInterface):
     """
     GUI for selecting from the various options when training a DeepQ agent.
     """
+
     def __init__(self):
         super(TrainAgent, self).__init__()
         self.master.title("DeepQ Training")
@@ -196,7 +200,7 @@ class TrainAgent(_UserInterface):
         FLAGS.save_replay = self.save_replay
         FLAGS.step_mul = self.step_mul
         FLAGS.visualize = self.visualize
-        app.run(dqn_agent.train_agent)
+        app.run(train_agent)
 
     def __set_dueling(self, dueling):
         self.dueling = dueling

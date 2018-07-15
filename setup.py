@@ -35,5 +35,5 @@ setup(name='StarCraft Agents',
                 'starcraft_agents.bin',
                 'starcraft_agents.deepq',
                 'starcraft_agents.minigame_agents'],
-      install_requires=['pysc2'],
+      install_requires=['pysc2', 'tensorflow==1.2'],
       entry_points={'console_scripts': ['dqn_agent = starcraft_agents.bin.dqn_agent:entry_point']})
