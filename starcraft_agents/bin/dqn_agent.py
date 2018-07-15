@@ -101,13 +101,13 @@ def train_agent(agent_name,
     tensorboard_dir = path.join(file_dir, "tensorboard", map_name)
     makedirs(path.dirname(tensorboard_dir), exist_ok=True)
 
-    with sc2_env.SC2Env(agent_interface_format=sc2_env.AgentInterfaceFormat(
+    with sc2_env.SC2Env(map_name=map_name,
+                        step_mul=step_mul,
+                        visualize=visualize,
+                        agent_interface_format=sc2_env.AgentInterfaceFormat(
                             feature_dimensions=sc2_env.Dimensions(
                                 screen=64, minimap=64),
-                                use_feature_units=True),
-                        map_name=map_name,
-                        step_mul=step_mul,
-                        visualize=visualize) as env:
+                                use_feature_units=True)) as env:
 
         train = learn.Learn(agent_cls,
                             cnn_to_mlp_args,
@@ -133,6 +133,7 @@ def train_agent(agent_name,
 
 
 def main(_):
+
     if FLAGS.settings_interface:
         settings = settings_interface.TrainAgent()
         settings.master.mainloop()
@@ -197,6 +198,7 @@ def play():
     # pylint: enable=E1101
 
     max_episode_steps = FLAGS.game_steps_per_episode
+
     if FLAGS.map_name:
         map_inst = maps.get(FLAGS.map_name)
         if map_inst.game_steps_per_episode:

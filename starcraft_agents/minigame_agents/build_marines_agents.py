@@ -21,28 +21,27 @@
 # SOFTWARE.
 
 """
-A collection of agents related to building marines
+A collection of agents related to building marines.
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from pysc2.agents import base_agent
+from pysc2.agents.base_agent import BaseAgent
 from pysc2.lib import actions
-from pysc2.lib import features
 
 
-class BuildBarracksAgent(base_agent.BaseAgent):
+class BuildBarracksAgent(BaseAgent):
     """
-    Generic agent for building barracks
+    Generic agent for building barracks.
     """
 
     def __init__(self):
         super(BuildBarracksAgent, self).reset()
-        self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
+        self.barracks_count = 0
         self.cmd_screen = [0]
         self.idle_worker_count = 7
+        self.functions = actions.FUNCTIONS
         self.neutral_mineralfields = 341
         self.not_queued = [0]
         self.player_friendly = 1
@@ -52,6 +51,8 @@ class BuildBarracksAgent(base_agent.BaseAgent):
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
         self.select_all = [0]
         self.select_worker_all = [2]
+        self.supply_depot_count = 0
+        self.terran_barrack_id = 21
         self.terran_commandcenter = 18
         self.terran_scv = 45
         self.vespene_geyser = 342
@@ -67,14 +68,8 @@ class BuildBarracksAgent(base_agent.BaseAgent):
 
 class BuildBarracksAgent001(BuildBarracksAgent):
     """
-    Basic agent for building barracks
+    Scripted agent for building barracks.
     """
-
-    def __init__(self):
-        super(BuildBarracksAgent001, self).__init__()
-        self.barracks_count = 0
-        self.supply_depot_count = 0
-        self.terran_barrack_id = 21
 
     def step(self, timestep):
         super(BuildBarracksAgent001, self).step(timestep)
@@ -98,33 +93,37 @@ class BuildBarracksAgent001(BuildBarracksAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildMarinesAgent(base_agent.BaseAgent):
+class BuildMarinesAgent(BaseAgent):
     """
-    Generic agent for building marines
+    Generic agent for building marines.
     """
 
     def __init__(self):
         super(BuildMarinesAgent, self).reset()
+        self.barracks_count = 0
         self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
         self.cmd_screen = [0]
         self.idle_worker_count = 7
         self.neutral_mineralfields = 341
         self.not_queued = [0]
         self.player_friendly = 1
         self.player_neutral = 3    # beacon/minerals
+        self.queued = [1]
         self.results = {}
         self.results['agent_id'] = self.__class__.__name__
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
         self.select_all = [0]
         self.select_worker_all = [2]
+        self.supply_depot_count = 0
+        self.supply_max_id = 4
+        self.supply_used_id = 3
+        self.terran_barrack_id = 21
         self.terran_commandcenter = 18
         self.terran_scv = 45
         self.vespene_geyser = 342
 
     def reset(self):
         super(BuildMarinesAgent, self).reset()
-        self.mean_reward = 0
         self.results['episode_data']['episode_lengths'].append(self.steps)
         self.results['episode_data']['episode_rewards'].append(self.reward)
         self.reward = 0
@@ -133,17 +132,8 @@ class BuildMarinesAgent(base_agent.BaseAgent):
 
 class BuildMarinesAgent001(BuildMarinesAgent):
     """
-    Basic agent for building marines
+    Scripted agent for building marines.
     """
-
-    def __init__(self):
-        super(BuildMarinesAgent001, self).__init__()
-        self.barracks_count = 0
-        self.queued = [1]
-        self.supply_depot_count = 0
-        self.supply_max_id = 4
-        self.supply_used_id = 3
-        self.terran_barrack_id = 21
 
     def step(self, timestep):
         super(BuildMarinesAgent001, self).step(timestep)
@@ -177,15 +167,14 @@ class BuildMarinesAgent001(BuildMarinesAgent):
         return actions.FunctionCall(self.functions.no_op.id, [])
 
 
-class BuildSupplyDepotAgent(base_agent.BaseAgent):
+class BuildSupplyDepotAgent(BaseAgent):
     """
-    Generic agent for building supply depot
+    Generic agent for building supply depot.
     """
 
     def __init__(self):
         super(BuildSupplyDepotAgent, self).reset()
         self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
         self.cmd_screen = [0]
         self.idle_worker_count = 7
         self.neutral_mineralfields = 341
@@ -197,6 +186,7 @@ class BuildSupplyDepotAgent(base_agent.BaseAgent):
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
         self.select_all = [0]
         self.select_worker_all = [2]
+        self.supply_depot_count = 0
         self.terran_commandcenter = 18
         self.terran_scv = 45
         self.vespene_geyser = 342
@@ -212,12 +202,8 @@ class BuildSupplyDepotAgent(base_agent.BaseAgent):
 
 class BuildSupplyDepotAgent001(BuildBarracksAgent):
     """
-    Basic agent for building supply depot
+    Scripted agent for building supply depot.
     """
-
-    def __init__(self):
-        super(BuildSupplyDepotAgent001, self).__init__()
-        self.supply_depot_count = 0
 
     def step(self, timestep):
         super(BuildSupplyDepotAgent001, self).step(timestep)

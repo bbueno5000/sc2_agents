@@ -28,12 +28,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from numpy import argmax as np_argmax
-from pysc2.agents import scripted_agent
+from pysc2.agents.scripted_agent import DefeatRoaches
 from pysc2.lib import actions
-from pysc2.lib import features
 
 
-class DefeatRoachesAgent(scripted_agent.DefeatRoaches):
+class DefeatRoachesAgent(DefeatRoaches):
     """
     Generic agent for defeating roachez
     """
@@ -41,21 +40,12 @@ class DefeatRoachesAgent(scripted_agent.DefeatRoaches):
     def __init__(self):
         super(DefeatRoachesAgent, self).__init__()
         self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
-        self.cmd_screen = [0]
-        self.idle_worker_count = 7
-        self.neutral_mineralfields = 341
         self.not_queued = [0]
-        self.player_friendly = 1
-        self.player_neutral = 3    # beacon/minerals
+        self.player_hostile = 4
         self.results = {}
         self.results['agent_id'] = self.__class__.__name__
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
         self.select_all = [0]
-        self.select_worker_all = [2]
-        self.terran_commandcenter = 18
-        self.terran_scv = 45
-        self.vespene_geyser = 342
 
     def reset(self):
         super(DefeatRoachesAgent, self).reset()
@@ -70,10 +60,6 @@ class DefeatRoachesAgent001(DefeatRoachesAgent):
     """
     Basic agent for defeating roaches
     """
-
-    def __init__(self):
-        super(DefeatRoachesAgent001, self).__init__()
-        self.player_hostile = 4
 
     def step(self, timestep):
         super(DefeatRoachesAgent001, self).step(timestep)

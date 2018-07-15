@@ -28,12 +28,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from numpy import array as np_array
-from pysc2.agents import scripted_agent
+from pysc2.agents.scripted_agent import MoveToBeacon
 from pysc2.lib import actions
-from pysc2.lib import features
 
 
-class MoveToBeaconAgent(scripted_agent.MoveToBeacon):
+class MoveToBeaconAgent(MoveToBeacon):
     """
     Generic agent for moving to a beacon
     """
@@ -41,7 +40,6 @@ class MoveToBeaconAgent(scripted_agent.MoveToBeacon):
     def __init__(self):
         super(MoveToBeaconAgent, self).__init__()
         self.functions = actions.FUNCTIONS
-        self.screen_features = features.SCREEN_FEATURES
         self.results = {}
         self.results['agent_id'] = self.__class__.__name__
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
@@ -62,9 +60,7 @@ class MoveToBeaconAgent001(MoveToBeaconAgent):
 
     def __init__(self):
         super(MoveToBeaconAgent001, self).__init__()
-        self.cmd_screen = [0]
         self.not_queued = [0]
-        self.player_friendly = 1
         self.player_neutral = 3    # beacon/minerals
         self.select_all = [0]
 

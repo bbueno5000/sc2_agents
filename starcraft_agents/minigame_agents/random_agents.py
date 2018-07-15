@@ -27,7 +27,6 @@ A collection of random agents
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from baselines import logger
 from pysc2.agents import random_agent
 
 
@@ -48,5 +47,3 @@ class RandomAgent(random_agent.RandomAgent):
         self.results['episode_data']['episode_rewards'].append(self.reward)
         self.reward = 0
         self.steps = 0
-        logger.record_tabular("episodes", self.episodes)
-        logger.dump_tabular()
