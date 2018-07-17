@@ -105,6 +105,7 @@ class Learn:
                  save_replay,
                  learning_rate=0.0005,
                  num_actions=64):
+
         model = deepq_models.cnn_to_mlp(*cnn_to_mlp_args)
         graph_kwargs = {'double_q': True,
                         'optimizer': tf_train.AdamOptimizer(learning_rate),
@@ -155,6 +156,7 @@ class Learn:
                  prioritized_replay_eps=1e-6,
                  target_network_update_freq=250,
                  train_freq=10):
+
         sess = Session()
         sess.run(global_variables_initializer())
         sess.__enter__()
