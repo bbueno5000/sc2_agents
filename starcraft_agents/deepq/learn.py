@@ -154,8 +154,8 @@ class Learn:
                  prioritized_replay_beta=0.4,
                  prioritized_replay_beta_iters=None,
                  prioritized_replay_eps=1e-6,
-                 target_network_update_freq=250,
-                 train_freq=10):
+                 target_network_update_freq=500,
+                 train_freq=1):
 
         sess = Session()
         sess.run(global_variables_initializer())
