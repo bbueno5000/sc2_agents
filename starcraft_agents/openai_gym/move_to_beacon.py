@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-OpenAI gym execution.
+OpenAI gym execution of TensorForce.
 """
 
 from __future__ import absolute_import
@@ -21,21 +21,24 @@ from __future__ import division
 from __future__ import print_function
 from absl import app
 from absl import flags
-import json
-import logging
-import os
-import gym_sc2
+from json import load
+from logging import basicConfig as logging_basicConfig
+from logging import getLogger
+from logging import INFO
+from os import mkdir
+from os import path
+from gym_sc2 import envs
 from tensorforce import TensorForceError
 from tensorforce.agents import RandomAgent
 from tensorforce.execution import Runner
 from tensorforce.contrib.openai_gym import OpenAIGym
-import time
+from time import time
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('agent_config', None, "Agent configuration file")
 flags.DEFINE_bool('debug', False, "Show debug outputs")
 flags.DEFINE_bool('deterministic', False, "Choose actions deterministically")
-flags.DEFINE_integer('episodes', None, "Number of episodes")
+flags.DEFINE_integer('num_episodes', None, "Number of episodes")
 flags.DEFINE_string('gym_id', None, "Id of the Gym environment")
 flags.DEFINE_string('job', None, "For distributed mode: The job type of this agent.")
 flags.DEFINE_string('load', None, "Load agent from this dir")
@@ -53,9 +56,9 @@ flags.DEFINE_integer('timesteps', None, "Number of timesteps")
 flags.DEFINE_bool('visualize', False, "Enable OpenAI Gym's visualization")
 
 def main(argv):
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__file__)
-    logger.setLevel(logging.INFO)
+    logging_basicConfig(level=INFO)
+    logger = getLogger(__file__)
+    logger.setLevel(INFO)
 
     environment = OpenAIGym(
         gym_id='MoveToBeacon-bbueno5000-v0',
@@ -82,17 +85,17 @@ def main(argv):
     agent = RandomAgent(environment.states, environment.actions)
 
     if FLAGS.load:
-        load_dir = os.path.dirname(FLAGS.load)
-        if not os.path.isdir(load_dir):
+        load_dir = path.dirname(FLAGS.load)
+        if not path.isdir(load_dir):
             raise OSError(
                 "Could not load agent from {}: No such directory.".format(load_dir))
         agent.restore_model(FLAGS.load)
 
     if FLAGS.save:
-        save_dir = os.path.dirname(FLAGS.save)
-        if not os.path.isdir(save_dir):
+        save_dir = path.dirname(FLAGS.save)
+        if not path.isdir(save_dir):
             try:
-                os.mkdir(save_dir, 0o755)
+                mkdir(save_dir, 0o755)
             except OSError:
                 raise OSError(
                     "Cannot save agent to dir {} ()".format(save_dir))
@@ -118,7 +121,7 @@ def main(argv):
 
     def episode_finished(r, id_):
         if r.episode % report_episodes == 0:
-            steps_per_second = r.timestep / (time.time() - r.start_time)
+            steps_per_second = r.timestep / (time() - r.start_time)
             logger.info("Finished episode {:d} after {:d} timesteps. Steps Per Second {:0.2f}".format(
                 r.agent.episode, r.episode_timestep, steps_per_second))
             logger.info("Episode reward: {}".format(r.episode_rewards[-1]))
@@ -133,7 +136,7 @@ def main(argv):
 
     runner.run(
         num_timesteps=FLAGS.timesteps,
-        num_episodes=FLAGS.episodes,
+        num_episodes=FLAGS.num_episodes,
         max_episode_timesteps=FLAGS.max_episode_timesteps,
         deterministic=FLAGS.deterministic,
         episode_finished=episode_finished,
@@ -142,7 +145,8 @@ def main(argv):
 
     runner.close()
 
-    logger.info("Learning finished. Total episodes: {ep}".format(ep=runner.agent.episode))
+    logger.info("Learning completed.")
+    logger.info("Total episodes: {ep}".format(ep=runner.agent.episode))
 
 if __name__ == '__main__':
     app.run(main)
