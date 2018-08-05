@@ -29,7 +29,7 @@ from os import mkdir
 from os import path
 from gym_sc2 import envs
 from tensorforce import TensorForceError
-from tensorforce.agents import RandomAgent
+from tensorforce.agents import PPOAgent
 from tensorforce.execution import Runner
 from tensorforce.contrib.openai_gym import OpenAIGym
 from time import time
@@ -38,7 +38,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string('agent_config', None, "Agent configuration file")
 flags.DEFINE_bool('debug', False, "Show debug outputs")
 flags.DEFINE_bool('deterministic', False, "Choose actions deterministically")
-flags.DEFINE_integer('num_episodes', None, "Number of episodes")
+flags.DEFINE_integer('num_episodes', 10, "Number of episodes")
 flags.DEFINE_string('gym_id', None, "Id of the Gym environment")
 flags.DEFINE_string('job', None, "For distributed mode: The job type of this agent.")
 flags.DEFINE_string('load', None, "Load agent from this dir")
@@ -82,7 +82,17 @@ def main(argv):
     #     logger.info(
     #         "No network configuration provided.")
 
-    agent = RandomAgent(environment.states, environment.actions)
+    network_spec = [
+        dict(type='flatten'),
+        dict(type='dense', size=32),
+        dict(type='dense', size=32)
+        ]
+
+    agent = PPOAgent(
+        states=environment.states,
+        actions=environment.actions,
+        network=network_spec
+        )
 
     if FLAGS.load:
         load_dir = path.dirname(FLAGS.load)
