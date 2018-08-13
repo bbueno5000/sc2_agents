@@ -24,9 +24,6 @@
 Train DQN agent.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 from absl import app
 from absl import flags
 from dill import dump as pkl_dump
@@ -55,11 +52,9 @@ from threading import Thread
 from time import sleep
 from time import time
 
-
 # Needed for setup.py
 def entry_point():
     app.run(main)
-
 
 def get_game_version(replay_data):
     replay_io = six_BytesIO()
@@ -69,7 +64,6 @@ def get_game_version(replay_data):
     metadata = json_loads(archive[b"replay.gamemetadata.json"].decode("utf-8"))
     version = metadata["GameVersion"]
     return ".".join(version.split(".")[:-1])
-
 
 def train_agent(agent_name,
                 agent_race,
@@ -100,7 +94,6 @@ def train_agent(agent_name,
     makedirs(path.dirname(checkpoints_dir), exist_ok=True)
     tensorboard_dir = path.join(file_dir, "tensorboard", map_name)
     makedirs(path.dirname(tensorboard_dir), exist_ok=True)
-
     with sc2_env.SC2Env(map_name=map_name,
                         step_mul=step_mul,
                         visualize=visualize,
@@ -108,14 +101,12 @@ def train_agent(agent_name,
                             feature_dimensions=sc2_env.Dimensions(
                                 screen=64, minimap=64),
                                 use_feature_units=True)) as env:
-
         train = learn.Learn(agent_cls,
                             cnn_to_mlp_args,
                             env,
                             map_name,
                             num_episodes,
                             save_replay)
-
         learn_kwargs = {'act_ops_dir': act_ops_dir,
                         'buffer_size': 10000,
                         'checkpoints_dir': checkpoints_dir,
@@ -126,11 +117,9 @@ def train_agent(agent_name,
                         'target_network_update_freq': 1000,
                         'tensorboard_dir': tensorboard_dir,
                         'train_freq': 4}
-
         train(**learn_kwargs)
         with open(path.join(file_dir, "config.txt"), 'w') as file:
             file.write(json_dumps(learn_kwargs))
-
 
 def main(_):
     if FLAGS.settings_interface:
@@ -158,9 +147,7 @@ def main(_):
                     FLAGS.trace,
                     FLAGS.visualize)
 
-
 def play():
-
     stopwatch.sw.enabled = FLAGS.profile or FLAGS.trace
     stopwatch.sw.trace = FLAGS.trace
 
@@ -172,8 +159,6 @@ def play():
 
     if FLAGS.realtime and FLAGS.replay:
         sys_exit("Realtime isn't possible for replays yet.")
-
-    # TODO (tewalds): Support realtime in replays once the game supports it.
 
     if FLAGS.visualize and (FLAGS.realtime or FLAGS.full_screen):
         sys_exit("Disable pygame rendering if you want realtime or full_screen.")

@@ -1,12 +1,12 @@
 from absl import flags
-import argparse
-import move_to_beacon_1d
+from argparse import ArgumentParser
+from move_to_beacon_1d import MoveToBeacon1d
 
 FLAGS = flags.FLAGS
 FLAGS([__file__])
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument(
         '--visualize',
         type=bool,
@@ -23,7 +23,7 @@ def main():
         default=None,
         help='number of game steps to take per turn')
     args = parser.parse_args()
-    example = move_to_beacon_1d.MoveToBeacon1d(args.visualize, args.step_mul)
+    example = MoveToBeacon1d(args.visualize, args.step_mul)
     rewards = example.run(args.num_episodes)
     print('Total reward: {}'.format(rewards.sum()))
     print('Average reward: {} +/- {}'.format(rewards.mean(), rewards.std()))

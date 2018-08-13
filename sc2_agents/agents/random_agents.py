@@ -23,27 +23,34 @@
 """
 A collection of random agents
 """
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from pysc2.agents import random_agent
 
-
-class RandomAgent(random_agent.RandomAgent):
+class RandomAgent001(random_agent.RandomAgent):
     """
-    Generic random agent
+    Generic Random Agent.
     """
-
     def __init__(self):
-        super(RandomAgent, self).__init__()
+        super(RandomAgent001, self).__init__()
         self.results = {}
         self.results['agent_id'] = "RandomAgent"
         self.results['episode_data'] = {'episode_lengths': [], 'episode_rewards': []}
 
     def reset(self):
-        super(RandomAgent, self).reset()
+        super(RandomAgent001, self).reset()
         self.results['episode_data']['episode_lengths'].append(self.steps)
         self.results['episode_data']['episode_rewards'].append(self.reward)
         self.reward = 0
         self.steps = 0
+
+class RandomAgent002:
+    """
+    OpenAI Gym Random Agent.
+    """
+    def __init__(self, action_space):
+        self.action_space = action_space
+
+    def act(self, observation, reward, done):
+        return self.action_space.sample()
