@@ -22,18 +22,14 @@
 
 from setuptools import setup
 
-
-setup(name='StarCraft Agents',
+setup(name='sc2_agents',
       version='0.1',
       description='Starcraft II agents',
       author='bbueno5000',
       author_email='bbueno5000@gmail.com',
       license='MIT License',
-      keywords='StarCraft AI',
-      url='https://github.com/bbueno5000/starcraft_agents',
-      packages=['starcraft_agents',
-                'starcraft_agents.bin',
-                'starcraft_agents.deepq',
-                'starcraft_agents.minigame_agents'],
-      install_requires=['pysc2', 'tensorflow==1.4'],
-      entry_points={'console_scripts': ['dqn_agent = starcraft_agents.bin.dqn_agent:entry_point']})
+      url='https://github.com/bbueno5000/sc2_agents',
+      packages=['sc2_agents',
+                'sc2_agents.agents',
+                'sc2_agents.bin'],
+      install_requires=['pysc2', 'tensorflow==1.4'])
