@@ -20,9 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 from absl import app
 from absl import flags
 from dqn_agent import train_agent
@@ -34,9 +31,7 @@ from tkinter import StringVar
 from tkinter import OptionMenu
 from tkinter import Tk
 
-
 FLAGS = flags.FLAGS
-
 
 class _UserInterface:
 
@@ -140,8 +135,8 @@ class _UserInterface:
         label.grid(column=0, row=8)
         options_menu.grid(column=0, pady=self.pady, row=9)
 
-
 class RunAgent(_UserInterface):
+
     """
     GUI for selecting from the various options when running an agent.
     """
@@ -174,8 +169,8 @@ class RunAgent(_UserInterface):
         label.grid(column=0, row=2)
         entry.grid(column=0, pady=self.pady, row=3)
 
-
 class TrainAgent(_UserInterface):
+
     """
     GUI for selecting from the various options when training a DeepQ agent.
     """
