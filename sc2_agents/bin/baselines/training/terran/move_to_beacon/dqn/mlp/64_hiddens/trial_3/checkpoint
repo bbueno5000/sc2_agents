@@ -1,0 +1,2 @@
+model_checkpoint_path: "move_to_beacon_deepq_3"
+all_model_checkpoint_paths: "move_to_beacon_deepq_3"

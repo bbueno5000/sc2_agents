@@ -30,7 +30,7 @@ def train_deepq_agent(env, network):
         env,
         network,
         total_timesteps=1000)
-    act.save('./move_to_beacon')
+    act.save('./move_to_beacon_deepq_3')
 
 def train_ppo_agent(env, network):
     act = deepq.learn(
