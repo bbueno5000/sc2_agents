@@ -25,27 +25,24 @@ from baselines import deepq
 from gym import make
 from gym_sc2 import envs
 
-def train_deepq_agent(env, network, **network_kwargs):
+def train_deepq_agent(env, network):
     act = deepq.learn(
         env,
         network,
-        total_timesteps=1000,
-        **network_kwargs)
-    act.save('move_to_beacon_deepq_model_1.pkl')
+        total_timesteps=1000)
+    act.save('./move_to_beacon')
 
-def train_ppo_agent(env, network, **network_kwargs):
+def train_ppo_agent(env, network):
     act = deepq.learn(
         env,
         network,
-        total_timesteps=1000,
-        **network_kwargs)
-    act.save('move_to_beacon_deepq_model_1.pkl')
+        total_timesteps=1000)
+    act.save('./move_to_beacon')
 
 def main(argv):
     env = make('MoveToBeacon-bbueno5000-v0')
-    network = deepq.models.mlp([64])
-    network_kwargs = {'num_actions': 64, 'scope': None}
-    train_deepq_agent(env, network, **network_kwargs)
+    network = 'mlp'
+    train_deepq_agent(env, network)
 
 if __name__ == '__main__':
     app.run(main)
