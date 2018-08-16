@@ -1,6 +1,6 @@
 # Experiment Parameters
 
-- algorithm: deepq
+- algorithm: ppo
 - hiddens: 64
 - map: MoveToBeacon
 - network: mlp

@@ -25,23 +25,18 @@ from absl import flags
 from gym import make
 from gym_sc2 import envs
 
-FLAGS = flags.FLAGS
-flags.DEFINE_string('algorithm', None, "Id of the Gym environment")
-flags.DEFINE_string('gym_id', None, "Id of the Gym environment")
-flags.DEFINE_string('network', None, "Agent configuration file")
-flags.DEFINE_string('save_dir', None, "Id of the Gym environment")
-
-def train_deepq_agent(env, network):
+def train_deepq_agent(env):
     from baselines import deepq
+    network = 'mlp'
     act = deepq.learn(
         env,
         network,
         total_timesteps=1000)
     act.save(FLAGS.save_dir)
 
-def train_ppo_agent(env, network):
+def train_ppo_agent(env):
     from baselines import ppo1
-    def policy_fn(name, ob_space, ac_space):    # pylint: disable=W0613
+    def policy_fn(name, ob_space, ac_space):
         return ppo1.cnn_policy.CnnPolicy(name, ob_space, ac_space)
     ppo1.pposgd_simple.learn(
         env,
@@ -58,16 +53,22 @@ def train_ppo_agent(env, network):
         schedule='linear')
 
 def main(argv):
-    env = make(FLAGS.gym_id)
+    env = make('{}-bbueno5000-v0'.format(FLAGS.map_name))
     if FLAGS.algorithm is 'deepq':
-        train_deepq_agent(env, FLAGS.network)
+        train_deepq_agent(env)
+    elif FLAGS.algorithm is 'ppo':
+        train_ppo_agent(env)
     else:
-        train_ppo_agent(env, FLAGS.network)
+        print("ERROR: Unknown algorithm selected")
     env.close()
+
+FLAGS = flags.FLAGS
+flags.DEFINE_string('algorithm', None, "Id of the Gym environment")
+flags.DEFINE_string('map_name', None, "Id of the Gym environment")
+flags.DEFINE_string('save_dir', None, "Id of the Gym environment")
 
 if __name__ == '__main__':
     FLAGS.algorithm = 'deepq'
-    FLAGS.gym_id = 'MoveToBeacon-bbueno5000-v0'
-    FLAGS.network = 'cnn'
-    FLAGS.save_dir = './move_to_beacon-deepq-cnn-1'
+    FLAGS.map_name = 'MoveToBeacon'
+    FLAGS.save_dir = './{}-{}-{}'.format(FLAGS.map_name, FLAGS.algorithm, 1)
     app.run(main)
